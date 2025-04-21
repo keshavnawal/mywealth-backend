@@ -9,17 +9,22 @@ app.get('/crypto', async (req, res) => {
   try {
     const coins = ['bitcoin', 'ethereum'];
     const prices = {};
-    const response = await axios.get(`https://api.coincap.io/v2/assets`);
-    response.data.data.forEach(asset => {
-      if (coins.includes(asset.id)) {
-        prices[asset.id] = parseFloat(asset.priceUsd);
-      }
+
+    const response = await axios.get('https://api.coinstats.app/public/v1/coins?currency=INR');
+    const coinsData = response.data.coins;
+
+    coins.forEach(id => {
+      const match = coinsData.find(c => c.id === id);
+      if (match) prices[id] = match.price;
     });
+
     res.json(prices);
   } catch (error) {
-    res.status(500).json({ error: 'Crypto fetch failed' });
+    console.error("Crypto fetch error:", error.message);
+    res.status(500).json({ error: "Crypto fetch failed" });
   }
 });
+
 
 app.get('/commodities', async (req, res) => {
   try {
